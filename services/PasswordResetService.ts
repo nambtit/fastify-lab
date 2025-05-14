@@ -9,7 +9,7 @@ import crypto from "crypto";
 export class PasswordResetService implements IPasswordResetService {
   constructor(
     private userRepository: IUserRepository,
-    private passwordResetRepository: IPasswordResetRepository
+    private passwordResetRepository: IPasswordResetRepository,
   ) {}
 
   async requestReset(email: string): Promise<void> {
@@ -20,7 +20,7 @@ export class PasswordResetService implements IPasswordResetService {
       const rawResetToken = crypto.randomUUID();
       const tokenHash = hashToken(rawResetToken);
       const expiration = now + APP_CONFIG.PASSWORD_RESET_TOKEN_EXPIRATION_MS;
-      
+
       this.passwordResetRepository.create({
         id: crypto.randomUUID(),
         userId: user.id,
@@ -38,12 +38,16 @@ export class PasswordResetService implements IPasswordResetService {
 
   async confirmReset(token: string, newPassword: string): Promise<void> {
     const providedHash = hashToken(token);
-    const resetRecord = this.passwordResetRepository.findByTokenHash(providedHash);
+    const resetRecord =
+      this.passwordResetRepository.findByTokenHash(providedHash);
     if (!resetRecord) {
       throw new Error("Invalid or expired reset token");
     }
     if (Date.now() > resetRecord.expiration) {
-      this.passwordResetRepository.updateStatusById(resetRecord.id, Status.INACTIVE);
+      this.passwordResetRepository.updateStatusById(
+        resetRecord.id,
+        Status.INACTIVE,
+      );
       throw new Error("Reset token expired");
     }
 
@@ -54,11 +58,14 @@ export class PasswordResetService implements IPasswordResetService {
     const now = Date.now();
     const salt = await bcrypt.genSalt(APP_CONFIG.BCRYPT_SALT_ROUNDS);
     const newHash = await bcrypt.hash(newPassword, salt);
-    
+
     user.passwordHash = newHash;
     user.salt = salt;
     // Update the user record and mark the token as inactive
     this.userRepository.update(user);
-    this.passwordResetRepository.updateStatusById(resetRecord.id, Status.INACTIVE);
+    this.passwordResetRepository.updateStatusById(
+      resetRecord.id,
+      Status.INACTIVE,
+    );
   }
 }

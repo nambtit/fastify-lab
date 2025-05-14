@@ -1,6 +1,5 @@
 import { FastifyInstance } from "fastify";
 import { sendSuccess, sendError } from "../utils/helpers";
-import { AuthService } from "../services/AuthService";
 import {
   loginSchema,
   logoutSchema,
@@ -8,28 +7,16 @@ import {
 } from "../schemas/authSchemas";
 import { StatusCodes } from "http-status-codes";
 import { PasswordResetService } from "../services/PasswordResetService";
-import { confirmResetSchema, requestResetSchema } from "../schemas/passwordResetSchemas";
+import {
+  confirmResetSchema,
+  requestResetSchema,
+} from "../schemas/passwordResetSchemas";
 
 export async function authRoutes(app: FastifyInstance) {
-  const {
-    userRepository,
-    accessTokenRepository,
-    refreshTokenRepository,
-    passwordResetRepository,
-  } = app.container;
-  const authService = new AuthService(
-    userRepository,
-    accessTokenRepository,
-    refreshTokenRepository,
-    passwordResetRepository
-  );
-
-  const passwordResetService = new PasswordResetService(
-    userRepository,
-    passwordResetRepository
-  );
-
   const prefix = "/api/v1/auth";
+
+  const authService = app.container.authService;
+  const passwordResetService = app.container.passwordResetService;
 
   app.post(
     `${prefix}/login`,
@@ -51,7 +38,7 @@ export async function authRoutes(app: FastifyInstance) {
       } catch (err: any) {
         return sendError(reply, err.message, StatusCodes.UNAUTHORIZED);
       }
-    }
+    },
   );
 
   app.post(
@@ -71,14 +58,14 @@ export async function authRoutes(app: FastifyInstance) {
           return sendError(
             reply,
             "Missing Authorization header",
-            StatusCodes.UNAUTHORIZED
+            StatusCodes.UNAUTHORIZED,
           );
         const parts = authHeader.split(" ");
         if (parts.length !== 2 || parts[0] !== "Bearer")
           return sendError(
             reply,
             "Invalid Authorization header format",
-            StatusCodes.UNAUTHORIZED
+            StatusCodes.UNAUTHORIZED,
           );
         const accessToken = parts[1];
         await authService.logout(accessToken, refreshToken);
@@ -86,7 +73,7 @@ export async function authRoutes(app: FastifyInstance) {
       } catch (err: any) {
         return sendError(reply, err.message, StatusCodes.UNAUTHORIZED);
       }
-    }
+    },
   );
 
   app.post(
@@ -106,7 +93,7 @@ export async function authRoutes(app: FastifyInstance) {
       } catch (err: any) {
         return sendError(reply, err.message, StatusCodes.UNAUTHORIZED);
       }
-    }
+    },
   );
 
   app.post(
@@ -125,12 +112,12 @@ export async function authRoutes(app: FastifyInstance) {
         return sendSuccess(
           reply,
           null,
-          "If the email exists, a reset token has been sent."
+          "If the email exists, a reset token has been sent.",
         );
       } catch (err: any) {
         return sendError(reply, err.message);
       }
-    }
+    },
   );
 
   app.post(
@@ -153,6 +140,6 @@ export async function authRoutes(app: FastifyInstance) {
       } catch (err: any) {
         return sendError(reply, err.message);
       }
-    }
+    },
   );
 }

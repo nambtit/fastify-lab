@@ -1,29 +1,29 @@
-import { APP_CONFIG } from '../config';
+import { APP_CONFIG } from "../config";
 
 export const loginSchema = {
-  type: 'object',
+  type: "object",
   properties: {
-    email: { type: 'string', format: 'email' },
-    password: { type: 'string', minLength: APP_CONFIG.PASSWORD_MIN_LENGTH }
+    email: { type: "string", format: "email" },
+    password: { type: "string", minLength: APP_CONFIG.PASSWORD_MIN_LENGTH },
   },
-  required: ['email', 'password'],
-  additionalProperties: false
+  required: ["email", "password"],
+  additionalProperties: false,
 };
 
 export const logoutSchema = {
-  type: 'object',
+  type: "object",
   properties: {
-    refreshToken: { type: 'string' }
+    refreshToken: { type: "string" },
   },
-  required: ['refreshToken'],
-  additionalProperties: false
+  required: ["refreshToken"],
+  additionalProperties: false,
 };
 
 export const refreshSchema = {
-  type: 'object',
+  type: "object",
   properties: {
-    refreshToken: { type: 'string' }
+    refreshToken: { type: "string" },
   },
-  required: ['refreshToken'],
-  additionalProperties: false
+  required: ["refreshToken"],
+  additionalProperties: false,
 };

@@ -1,21 +1,18 @@
+import dotenv from "dotenv";
+dotenv.config();
 import fastify from "fastify";
 import { APP_CONFIG } from "./config";
-import { IRepositoryContainer, repositoryContainer } from "./repositories";
 import { routes } from "./routes";
 import { StatusCodes } from "http-status-codes";
 import { configSwagger } from "./swagger";
-
-// Module augmentation for Fastify to include the container property, supporting dependency injection.
-declare module "fastify" {
-  interface FastifyInstance {
-    container: IRepositoryContainer;
-  }
-}
+import { container } from "./di/container";
+// Module augmentation for Fastify.
+import "./types/fastify";
 
 const app = fastify({ logger: { level: APP_CONFIG.LOG_LEVEL } });
 
 // Attach the repository container to enable dependency injection.
-app.decorate("container", repositoryContainer);
+app.decorate("container", container);
 
 // Global error handler.
 app.setErrorHandler((error, req, reply) => {

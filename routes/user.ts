@@ -1,17 +1,14 @@
 import { FastifyInstance } from "fastify";
 import { sendSuccess, sendError } from "../utils/helpers";
 import { UserService } from "../services/UserService";
-import {
-  registerSchema,
-} from "../schemas/userSchemas";
+import { registerSchema } from "../schemas/userSchemas";
 import { StatusCodes } from "http-status-codes";
-import { jwtMiddleware } from "../middlewares/jwtMiddleware";
-import { decodeJwt } from '../utils/jwt'
+import { jwtAuthorizationMiddleware } from "../middlewares/jwtAuthorizationMiddleware";
+import { decodeJwt } from "../utils/jwt";
 
 export async function userRoutes(app: FastifyInstance) {
-  const { userRepository } = app.container;
-  const userService = new UserService(userRepository);
   const prefix = "/api/v1/user";
+  const userService = app.container.userService;
 
   app.post(
     `${prefix}/register`,
@@ -32,18 +29,18 @@ export async function userRoutes(app: FastifyInstance) {
         return sendSuccess(
           reply,
           { id: newUser.id, email: newUser.email },
-          "User registered successfully"
+          "User registered successfully",
         );
       } catch (err: any) {
         return sendError(reply, err.message, StatusCodes.CONFLICT);
       }
-    }
+    },
   );
 
   app.get(
     `${prefix}/profile`,
     {
-      preHandler: jwtMiddleware,
+      preHandler: jwtAuthorizationMiddleware,
       schema: {
         description: "Get user profile",
         tags: ["User"],
@@ -57,7 +54,7 @@ export async function userRoutes(app: FastifyInstance) {
           return sendError(
             reply,
             "Missing Authorization header",
-            StatusCodes.UNAUTHORIZED
+            StatusCodes.UNAUTHORIZED,
           );
         }
         const parts = authHeader.split(" ");
@@ -65,7 +62,7 @@ export async function userRoutes(app: FastifyInstance) {
           return sendError(
             reply,
             "Invalid Authorization header format",
-            StatusCodes.UNAUTHORIZED
+            StatusCodes.UNAUTHORIZED,
           );
         }
         const token = parts[1];
@@ -73,11 +70,11 @@ export async function userRoutes(app: FastifyInstance) {
         return sendSuccess(
           reply,
           { email: payload.sub },
-          "Profile fetched successfully"
+          "Profile fetched successfully",
         );
       } catch (err: any) {
         return sendError(reply, err.message, StatusCodes.UNAUTHORIZED);
       }
-    }
+    },
   );
 }

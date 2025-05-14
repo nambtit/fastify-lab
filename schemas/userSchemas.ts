@@ -1,34 +1,34 @@
-import { APP_CONFIG } from '../config';
+import { APP_CONFIG } from "../config";
 
 export const registerSchema = {
-  type: 'object',
+  type: "object",
   properties: {
-    email: { type: 'string', format: 'email' },
-    password: { type: 'string', minLength: APP_CONFIG.PASSWORD_MIN_LENGTH }
+    email: { type: "string", format: "email" },
+    password: { type: "string", minLength: APP_CONFIG.PASSWORD_MIN_LENGTH },
   },
-  required: ['email', 'password'],
-  additionalProperties: false
+  required: ["email", "password"],
+  additionalProperties: false,
 };
 
 export const passwordResetRequestSchema = {
   body: {
-    type: 'object',
+    type: "object",
     properties: {
-      email: { type: 'string', format: 'email' },
+      email: { type: "string", format: "email" },
     },
-    required: ['email'],
+    required: ["email"],
     additionalProperties: false,
   },
 };
 
 export const passwordResetConfirmSchema = {
   body: {
-    type: 'object',
+    type: "object",
     properties: {
-      token: { type: 'string' },
-      newPassword: { type: 'string', minLength: 6 },
+      token: { type: "string" },
+      newPassword: { type: "string", minLength: 6 },
     },
-    required: ['token', 'newPassword'],
+    required: ["token", "newPassword"],
     additionalProperties: false,
   },
 };

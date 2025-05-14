@@ -1,16 +1,16 @@
-import { IUserService } from './IUserService';
-import { IUserRepository } from '../repositories/IUserRepository';
-import { APP_CONFIG, Status } from '../config';
-import bcrypt from 'bcrypt';
-import crypto from 'crypto';
-import { User } from '../models/User';
+import { IUserService } from "./IUserService";
+import { IUserRepository } from "../repositories/IUserRepository";
+import { APP_CONFIG, Status } from "../config";
+import bcrypt from "bcrypt";
+import crypto from "crypto";
+import { User } from "../models/User";
 
 export class UserService implements IUserService {
   constructor(private userRepository: IUserRepository) {}
 
   async register(email: string, password: string): Promise<User> {
     if (this.userRepository.findByEmail(email)) {
-      throw new Error('User already exists');
+      throw new Error("User already exists");
     }
     const now = Date.now();
     const salt = await bcrypt.genSalt(APP_CONFIG.BCRYPT_SALT_ROUNDS);

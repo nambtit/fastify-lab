@@ -26,7 +26,7 @@ export async function generateAccessToken(
 
 export async function generateRefreshToken(
   email: string,
-): Promise<{ token: string; issuedAt: number }> {
+): Promise<{ token: string; issuedAt: number; expiredAt: number }> {
   const nowMs = Date.now();
   const nowSec = Math.floor(nowMs / 1000);
   const expSec =
@@ -41,7 +41,7 @@ export async function generateRefreshToken(
     .setExpirationTime(expSec)
     .sign(encoder.encode(APP_CONFIG.JWT_SECRET));
 
-  return { token, issuedAt: nowMs };
+  return { token, issuedAt: nowMs, expiredAt: expSec };
 }
 
 export async function verifyJWT(token: string): Promise<any> {
